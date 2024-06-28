@@ -231,7 +231,9 @@ athletereg %>%
 ### Using ggplot2 histogram, show the age distribution of the 
 ### participating athletes 
 
-
+athletereg %>% 
+  group_by(Age) %>% 
+  summarise(total = n())
 ```
 
 
