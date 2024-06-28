@@ -1,0 +1,445 @@
+---
+title: "Capstone Project for DA"
+author: "Oterhia Samuel"
+date: "6/28/2024"
+output: html_document
+---
+
+
+## Capstone Project for Data Analysis Class NIIT Benin.
+
+```{r Q1 import libraries}
+
+### Import all the necessary libraries for this project
+
+library(tidyverse)
+library(readxl)
+```
+
+
+```{r Q2 import the first csv file}
+### import the csv file - athlete_events.csv
+
+
+
+### show the first 10 records from the dataset
+
+
+
+### show all the columns in the dataset
+```
+```{r}
+athlete <- read.csv(file.choose())
+```
+```{r}
+View(head(athlete,10))
+```
+```{r}
+colnames(athlete)
+```
+
+
+```{r Q3 import the second csv file }
+
+### import the csv file - noc_regions.csv
+### show the first 10 records from the dataset
+### show all the columns in the dataset
+```
+```{r}
+region <- read.csv(file.choose())
+```
+```{r}
+View(head(region,10))
+```
+```{r}
+colnames(region)
+```
+
+
+
+
+```{r Q4 merge the two datasets}
+
+### merge the two datasets on the common column - NOC, create a 
+### new dataframe from the merger
+
+### show the merged dataset using View.
+
+```
+```{r}
+athletereg <- inner_join(x = athlete, y = region, by="NOC")
+```
+```{r}
+View(athletereg)
+```
+
+
+
+```{r Q5 show the dimension of the dataset }
+
+### show the total number of rows and columns in the merged dataset
+
+```
+```{r}
+dim(athletereg)
+```
+
+
+
+```{r Q6 describe the dataset structure}
+### get information about the dataframe using the str() function
+```
+```{r}
+str(athletereg)
+```
+
+
+
+
+```{r Q7 show summary statistics}
+
+### show the summary statistics on all columns in the merged 
+### dataset 
+```
+```{r}
+summary(athletereg)
+```
+
+
+```{r Q8 check for missing values}
+### check for missing values in each of the columns in the 
+### dataset.
+
+```
+```{r}
+is.na(athletereg)
+```
+
+
+
+```{r Q9 total number of missing values}
+### show the total number of null values in each column of the 
+### dataset
+
+
+
+```
+```{r}
+sum(is.na(athletereg))
+```
+
+```{r Q10 athletes from India and USA}
+### show the athletes from the country India or United States
+### How many are the athletes of both countries 
+```
+```{r}
+athletereg %>%
+   filter(region == "USA"|region== "India") %>% 
+  group_by(region) %>%
+  View()
+```
+```{r}
+athletereg %>%
+   filter(region == "USA"|region== "India") %>% 
+  group_by(region) %>%
+  summarise(total = n())
+```
+
+
+
+```{r Q11 first and last year captured}
+
+### Using a function show the first and the last years captured
+### in the dataset 
+
+```
+```{r}
+View(head(athletereg, 1))
+```
+```{r}
+View(tail(athletereg, 1))
+```
+
+
+```{r Q12 show number of athletes each year}
+
+### show the number of athletes that participated each year
+athletereg %>%
+  group_by(Year) %>%
+  summarise(total = n())
+
+
+```
+
+
+
+```{r Q13 top 5 years with highest atheletes }
+
+### show the top 5 years with the highest number of athletes 
+### participation 
+
+
+### visualise this using the column chart
+
+```
+```{r}
+athletereg %>%
+  group_by(Year) %>%
+  summarise(total = n()) %>%
+  arrange(-total) %>% 
+  head(5)
+```
+```{r}
+athletereg %>%
+  group_by(Year) %>%
+  summarise(total = n()) %>%
+  arrange(-total) %>% 
+  head(5) %>% 
+  ggplot(aes(x=Year, y= total)) + geom_col (aes(y=total), color = "red", size = 0.7)
+```
+
+
+
+
+```{r Q14 top 10 participating countries}
+### show the top 10 countries with the highest participation overall
+
+### visualise the result above using a bar chart in ggplot2, sort from lowest to highest
+```
+```{r}
+athletereg %>%
+  group_by(region) %>% 
+  summarise(total = n()) %>% 
+  arrange(-total) %>% 
+  head(10)
+```
+```{r}
+athletereg %>%
+  group_by(region) %>% 
+  summarise(total = n()) %>% 
+  arrange(-total) %>% 
+  head(10) %>% 
+  ggplot(aes(x = region, y= total, fill = region, ))  + 
+  geom_bar(aes(y = total), stat = "identity",position = "dodge") +
+  geom_text(aes( x=region, y= total, label = total),vjust ="inward") + coord_flip()
+```
+
+
+
+```{r Q15 show age distribution}
+
+### Using ggplot2 histogram, show the age distribution of the 
+### participating athletes 
+
+
+```
+
+
+
+```{r Q16 winter and summer olympic games}
+
+### show all the winter olympic games 
+
+
+
+### show all the summer olympic games 
+
+
+
+
+
+```
+
+
+```{r Q17 male and female distribution}
+### show the number of male and female participants in the olympics
+
+
+
+### visualise this using the ggplot2 pie chart
+
+
+
+
+```
+
+
+
+
+```{r Q18 total number of medals each country }
+### show the total number of medals won in each country
+
+
+### visualize this using the ggplot2 bar chart
+
+
+
+
+
+
+```
+
+
+
+```{r Q19 number of female participants }
+
+### show the total number of female participants in each 
+### year of the olympics
+
+
+### visualise this using the ggplot2 column chart
+
+
+```
+
+
+
+
+```{r Q20 gold medalist}
+
+### show the gold medalists for the olympics 2000 and their respective countries
+
+
+
+
+```
+
+
+
+```{r Q21 overall top 10 gold medals }
+
+### show the overall top 10 highest gold medals for each country
+
+
+
+### visualise this using the column bar chart
+
+
+
+
+```
+
+
+```{r Q22 number gold medals won across the years}
+
+### visualise using ggplot2 geom_line() function the variations in 
+### the number of gold medals won from the year 1948 to 2016
+
+
+
+
+
+
+```
+
+
+
+```{r Q23 medals won by Africans}
+
+### Show the number of medals won each by Nigeria, South Africa and Kenya from the year 2010 to 2016
+
+
+
+### Visualise this using the clustered bar chart.
+
+
+```
+
+
+
+
+```{r Q24 Nigeria medals 2016}
+
+### Show all the athletes that won medals for Nigeria in the 2016
+### olympics and the sports they won them in.
+
+
+
+
+```
+
+
+
+```{r Q25 age_bracket medals won}
+
+### show the number of medals won from the year 2000 to 2016 
+### by the following age groups
+
+### 10 -19
+### 20 - 30
+### 31-40
+### 41-50
+### 51- above
+### sort from highest to lowest
+
+# visualise your result using ggplot2 column chart
+
+
+```
+
+
+
+```{r Q26 USA wins 2016}
+
+### show all the athletes that won medals for USA in the year 
+### 2016 and the sports that they won them in.
+
+
+
+```
+
+
+
+```{r Q27 number of sports 2000 }
+
+### show the total number of unique sports that athletes participated ### in olympics 2000
+
+
+
+
+
+```
+
+
+```{r Q28 sports with highest medals}
+
+### show the top 5 countries that won the highest gold medals 
+### in the year 2016
+
+
+### visualise this using the ggplot bar chart
+
+
+```
+
+
+```{r Q29 top 5 countries 2016} 
+
+### show the the top 5 countries that won the highest medals overall 
+###in the year 2016, sort from highest to lowest
+
+
+
+### visualise this using the ggplot bar chart, keeping the sort order
+
+
+
+
+```
+
+
+
+
+
+
+```{r Q30 no wins}
+
+### show the countries that did not win any medals at the olympics 
+### 2016
+
+
+### visualise this using the ggplot2 bar chart
+
+
+```
+
