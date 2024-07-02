@@ -233,7 +233,8 @@ athletereg %>%
 
 athletereg %>% 
   group_by(Age) %>% 
-  summarise(total = n())
+  summarise(total = n()) %>% 
+  ggplot(aes(x = Age)) + geom_histogram(aes(x= Age, y = total))
 ```
 
 
@@ -241,27 +242,40 @@ athletereg %>%
 ```{r Q16 winter and summer olympic games}
 
 ### show all the winter olympic games 
+athletereg %>%
+  filter(Season== "Winter") %>%
+  group_by(Season) %>% 
+   summarise(Games = n())
 
+ 
 
-
-### show all the summer olympic games 
-
-
-
-
+```
+```{r}
+### show all the summer olympic games
+athletereg %>%
+  filter(Season == "Summer") %>% 
+  group_by(Season) %>% 
+  summarise(Games = n())
 
 ```
 
 
 ```{r Q17 male and female distribution}
 ### show the number of male and female participants in the olympics
+athletereg %>% 
+    group_by(Sex) %>% 
+  summarise(total = n())
+  
 
-
-
+```
+```{r}
 ### visualise this using the ggplot2 pie chart
-
-
-
+athletereg %>% 
+    group_by(Sex) %>% 
+  summarise(total = n()) %>% 
+ ggplot(aes(x = Sex, y= total, fill = Sex, ))  + 
+  geom_bar(aes(y = total), stat = "identity",position = "dodge") +
+  geom_text(aes( x=Sex, y= total, label = total),vjust ="inward") + coord_polar()
 
 ```
 
@@ -270,15 +284,20 @@ athletereg %>%
 
 ```{r Q18 total number of medals each country }
 ### show the total number of medals won in each country
-
-
+athletereg %>%
+    group_by(region, Medal) %>%
+  summarise(total = n())
+  
+```
+```{r}
 ### visualize this using the ggplot2 bar chart
-
-
-
-
-
-
+athletereg %>%
+    group_by(region, Medal) %>%
+  summarise(total = n()) %>%
+  ggplot(aes(x = region, y= Medal, fill = region, ))  + 
+  geom_bar(aes(y = Medal), stat = "identity",position = "dodge") +
+  geom_text(aes( x=region, y= Medal, label = region),vjust ="inward")
+  
 ```
 
 
@@ -287,10 +306,21 @@ athletereg %>%
 
 ### show the total number of female participants in each 
 ### year of the olympics
+athletereg %>%
+  filter(Sex == "F") %>% 
+  group_by(Year) %>% 
+  summarise(total = n())
 
 
+
+```
+```{r}
 ### visualise this using the ggplot2 column chart
-
+athletereg %>%
+  filter(Sex == "F") %>% 
+  group_by(Year) %>% 
+  summarise(total = n()) %>% 
+ ggplot(aes(x=Year, y= Sex)) + geom_col (aes(y=Sex), color = "red", size = 0.7)
 
 ```
 
@@ -311,13 +341,28 @@ athletereg %>%
 ```{r Q21 overall top 10 gold medals }
 
 ### show the overall top 10 highest gold medals for each country
+athletereg %>%
+  filter(Medal == "Gold") %>% 
+  group_by(region, Medal) %>% 
+  summarise(total = n()) %>% 
+  arrange(desc(total)) %>% 
+  head(10)
 
 
 
+```
+```{r}
 ### visualise this using the column bar chart
-
-
-
+athletereg %>%
+  filter(Medal == "Gold") %>% 
+  group_by(region, Medal) %>% 
+  summarise(total = n()) %>% 
+  arrange(desc(total)) %>% 
+  head(10) %>%
+  ggplot(aes(x = region, y = total, fill = region, ))  + 
+  geom_bar(aes(y = total), stat = "identity",position = "dodge") +
+  geom_text(aes( x=region, y= total, label = total),vjust ="inward") + coord_flip()
+  
 
 ```
 
