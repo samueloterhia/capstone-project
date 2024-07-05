@@ -70,7 +70,7 @@ colnames(region)
 athletereg <- inner_join(x = athlete, y = region, by="NOC")
 ```
 ```{r}
-View(athletereg)
+View(head(athletereg))
 ```
 
 
@@ -131,14 +131,7 @@ sum(is.na(athletereg))
 ```{r Q10 athletes from India and USA}
 ### show the athletes from the country India or United States
 ### How many are the athletes of both countries 
-```
-```{r}
-athletereg %>%
-   filter(region == "USA"|region== "India") %>% 
-  group_by(region) %>%
-  View()
-```
-```{r}
+
 athletereg %>%
    filter(region == "USA"|region== "India") %>% 
   group_by(region) %>%
@@ -190,12 +183,12 @@ athletereg %>%
   head(5)
 ```
 ```{r}
-athletereg %>%
-  group_by(Year) %>%
-  summarise(total = n()) %>%
+athletereg %>% 
+  group_by(Year) %>% 
+  summarize(total =n()) %>% 
   arrange(-total) %>% 
   head(5) %>% 
-  ggplot(aes(x=Year, y= total)) + geom_col (aes(y=total), color = "red", size = 0.7)
+ggplot(aes(x = reorder(Year, total), y= total, fill = Year)) + geom_col(aes(y= total), stat = "identity", position = "dodge") + labs(x= "Year", y= "Count", title = "Top five years with the highest number of athletes participation") + geom_text(aes(y = total,label = total), vjust = "inward", color= "white")
 ```
 
 
@@ -219,8 +212,8 @@ athletereg %>%
   summarise(total = n()) %>% 
   arrange(-total) %>% 
   head(10) %>% 
-  ggplot(aes(x = region, y= total, fill = region, ))  + 
-  geom_bar(aes(y = total), stat = "identity",position = "dodge") +
+  ggplot(aes(x = reorder (region, -total), y= total, fill = region, ))  + 
+  geom_bar(aes(y = total), stat = "identity",position = "dodge") + labs(x = "Region", y="total", title = "Top 10 countries with highest participation overall") +
   geom_text(aes( x=region, y= total, label = total),vjust ="inward") + coord_flip()
 ```
 
@@ -233,8 +226,9 @@ athletereg %>%
 
 athletereg %>% 
   group_by(Age) %>% 
-  summarise(total = n()) %>% 
-  ggplot(aes(x = Age)) + geom_histogram(aes(x= Age, y = total))
+  summarise(total = n()) %>%
+  head(30) %>% 
+  ggplot(aes(x = Age, y = total, fill = Age)) + geom_histogram(aes(y = total), stat = "identity") + labs(x="Age", y="total", title = "Age distribution of the participating athletes")
 ```
 
 
@@ -264,18 +258,20 @@ athletereg %>%
 ### show the number of male and female participants in the olympics
 athletereg %>% 
     group_by(Sex) %>% 
-  summarise(total = n())
-  
+  summarise(count = n())
+```
 
+
+```{r}
+overallsex <- NROW(athletereg$Sex)
+overallsex
 ```
 ```{r}
 ### visualise this using the ggplot2 pie chart
 athletereg %>% 
-    group_by(Sex) %>% 
-  summarise(total = n()) %>% 
- ggplot(aes(x = Sex, y= total, fill = Sex, ))  + 
-  geom_bar(aes(y = total), stat = "identity",position = "dodge") +
-  geom_text(aes( x=Sex, y= total, label = total),vjust ="inward") + coord_polar()
+  group_by(Sex) %>% 
+  summarise(count=n()) %>% 
+  ggplot(aes(x="", y= count, fill= Sex)) + geom_bar(stat = "identity", width = 1) + geom_text(aes(label= paste0(round(count/overallsex*100,0),"%")),position = position_stack(vjust = 0.5)) + labs(title = "Total percentage of Male and Female participant") + coord_polar("y") + theme_void()
 
 ```
 
@@ -285,18 +281,23 @@ athletereg %>%
 ```{r Q18 total number of medals each country }
 ### show the total number of medals won in each country
 athletereg %>%
-    group_by(region, Medal) %>%
-  summarise(total = n())
-  
+  filter(!(is.na(Medal))) %>% 
+    group_by(region) %>%
+  summarise(total = n()) %>% 
+  arrange(-total) %>% 
+  head(15)
 ```
 ```{r}
 ### visualize this using the ggplot2 bar chart
 athletereg %>%
-    group_by(region, Medal) %>%
+  filter(!(is.na(Medal))) %>% 
+    group_by(region) %>%
   summarise(total = n()) %>%
-  ggplot(aes(x = region, y= Medal, fill = region, ))  + 
-  geom_bar(aes(y = Medal), stat = "identity",position = "dodge") +
-  geom_text(aes( x=region, y= Medal, label = region),vjust ="inward")
+  arrange(-total) %>% 
+  head(10) %>% 
+  ggplot(aes(x = reorder (region, -total), y = total, fill = region))  + 
+  geom_col(aes(x = region, y=total), stat = "identity", position = "dodge") + labs(x = "Region", y="total", title = "Total number of medals won in each country") +
+  geom_text(aes( x=region, y= total, label = total),vjust ="inward")+ coord_flip()
   
 ```
 
@@ -320,7 +321,8 @@ athletereg %>%
   filter(Sex == "F") %>% 
   group_by(Year) %>% 
   summarise(total = n()) %>% 
- ggplot(aes(x=Year, y= Sex)) + geom_col (aes(y=Sex), color = "red", size = 0.7)
+ ggplot(aes(x = reorder(Year,total), y=total, fill = Year))  + 
+  geom_col(aes(y = total), stat = "identity",position = "dodge") + labs(x="Year",y="total",title ="Total Numbers Of Female Participant in Each Year of The Olympics")+ coord_flip()
 
 ```
 
@@ -330,10 +332,12 @@ athletereg %>%
 ```{r Q20 gold medalist}
 
 ### show the gold medalists for the olympics 2000 and their respective countries
-
-
-
-
+athletereg %>%
+  filter(Medal== "Gold" & Year== 2000) %>% 
+  group_by(region, Medal) %>%
+    summarise(total = n()) %>% 
+  arrange(desc(total))
+  
 ```
 
 
@@ -359,8 +363,8 @@ athletereg %>%
   summarise(total = n()) %>% 
   arrange(desc(total)) %>% 
   head(10) %>%
-  ggplot(aes(x = region, y = total, fill = region, ))  + 
-  geom_bar(aes(y = total), stat = "identity",position = "dodge") +
+  ggplot(aes(x =reorder(region, -total), y = total, fill = region, ))  + 
+  geom_bar(aes(y = total), stat = "identity",position = "dodge") + labs(x="Region", y= "Medals", title = "Top 10 highest Gold medals for each country") +
   geom_text(aes( x=region, y= total, label = total),vjust ="inward") + coord_flip()
   
 
@@ -368,15 +372,21 @@ athletereg %>%
 
 
 ```{r Q22 number gold medals won across the years}
-
+athletereg %>%
+  filter(Medal == "Gold") %>% 
+  group_by(Year, Medal) %>% 
+  summarise(total = n())
+  
+```
+```{r}
 ### visualise using ggplot2 geom_line() function the variations in 
 ### the number of gold medals won from the year 1948 to 2016
-
-
-
-
-
-
+athletereg %>%
+  filter(Medal == "Gold", Year>1947) %>% 
+  group_by(Year, Medal) %>% 
+  summarise(total = n()) %>%
+  ggplot(aes(x = Year, y = total)) + geom_line (aes(x= Year, y = total), color = "blue")+
+  labs(x="Year", y= "count", title = "variations in number of gold medals won from the year 1948 to 2016") + geom_text(aes(y= total, label = Year),vjust ="inward", size = 2.5)
 ```
 
 
@@ -384,8 +394,11 @@ athletereg %>%
 ```{r Q23 medals won by Africans}
 
 ### Show the number of medals won each by Nigeria, South Africa and Kenya from the year 2010 to 2016
-
-
+athletereg %>% 
+  filter(region %in% c("Nigeria", "South Africa", "Kenya"), 
+         Year>2009, !(is.na(Medal)))%>%
+  group_by(region, Year) %>% 
+  summarise(total = n())
 
 ### Visualise this using the clustered bar chart.
 
@@ -400,7 +413,10 @@ athletereg %>%
 ### Show all the athletes that won medals for Nigeria in the 2016
 ### olympics and the sports they won them in.
 
-
+athletereg %>% 
+  filter(region == "Nigeria", Year==2016, !(is.na(Medal))) %>% 
+  group_by(Name, Sport) %>% 
+  summarise(total = n())
 
 
 ```
@@ -418,10 +434,22 @@ athletereg %>%
 ### 41-50
 ### 51- above
 ### sort from highest to lowest
-
+athletereg %>% 
+  mutate(Age_bracket = dplyr::case_when(Age<=19 ~ "10-19", Age>19 & Age<=30 ~ "20-30",Age>30 & Age<=40 ~"31-40",Age>40 & Age<=50 ~ "41-50", Age>50 ~"Above 51"),Age_bracket=
+           factor(Age_bracket,level=c("10-19","20-30","31-40","41-50","Above 51"))) %>% 
+  filter(Year>1999,!(is.na(Medal))) %>% 
+  group_by(Age_bracket) %>% 
+  summarise(total=n())
+```
+```{r}
+athletereg %>% 
+  mutate(Age_bracket = dplyr::case_when(Age<=19 ~ "10-19", Age>19 & Age<=30 ~ "20-30",Age>30 & Age<=40 ~"31-40",Age>40 & Age<=50 ~ "41-50", Age>50 ~"Above 51"),Age_bracket=
+           factor(Age_bracket,level=c("10-19","20-30","31-40","41-50","Above 51"))) %>% 
+  filter(Year>1999,!(is.na(Medal))) %>% 
+  group_by(Age_bracket) %>% 
+  summarise(total=n()) %>% 
+  ggplot(aes(x= reorder(Age_bracket, -total),y=total,fill =Age_bracket)) + geom_col(aes(y = total),position = "dodge") +labs(x= "Age_bracket",y ="count",title = "Medals won from 2000-2016 by Age grade")+ geom_text(aes(y=total,label=total),vjust="inward")
 # visualise your result using ggplot2 column chart
-
-
 ```
 
 
@@ -430,6 +458,10 @@ athletereg %>%
 
 ### show all the athletes that won medals for USA in the year 
 ### 2016 and the sports that they won them in.
+athletereg %>% 
+  filter(region == "USA", Year==2016, !(is.na(Medal))) %>% 
+  group_by(Name, Sport) %>% 
+  summarise(total = n())
 
 
 
@@ -440,10 +472,10 @@ athletereg %>%
 ```{r Q27 number of sports 2000 }
 
 ### show the total number of unique sports that athletes participated ### in olympics 2000
-
-
-
-
+athletereg %>% 
+  filter(Year==2000) %>% 
+  group_by(Sport) %>% 
+  summarise(total = n())
 
 ```
 
@@ -452,11 +484,22 @@ athletereg %>%
 
 ### show the top 5 countries that won the highest gold medals 
 ### in the year 2016
-
-
+athletereg %>% 
+  filter(Medal== "Gold", Year==  2016) %>% 
+  group_by(region) %>% 
+  summarise(total = n())
+```
+```{r}
 ### visualise this using the ggplot bar chart
-
-
+athletereg %>% 
+  filter(Medal== "Gold", Year==  2016) %>% 
+  group_by(region) %>% 
+  summarise(total = n()) %>%
+  arrange(desc(total)) %>% 
+  head(20) %>% 
+ggplot(aes(x = reorder(region,-total), y=total, fill = region))  + 
+  geom_bar(aes(y = total), stat = "identity",position = "dodge") +
+  geom_text(aes( x=region, y= total, label = total),vjust ="inward")+coord_flip()
 ```
 
 
@@ -465,28 +508,45 @@ athletereg %>%
 ### show the the top 5 countries that won the highest medals overall 
 ###in the year 2016, sort from highest to lowest
 
-
-
+athletereg %>% 
+  filter(Year==  2016, !(is.na(Medal))) %>% 
+  group_by(region) %>% 
+  summarise(total = n()) %>% 
+  arrange(-total) %>% 
+  head(5)
+```
+```{r}
 ### visualise this using the ggplot bar chart, keeping the sort order
-
-
-
+athletereg %>% 
+  filter(Year==  2016, !(is.na(Medal))) %>% 
+  group_by(region) %>% 
+  summarise(total = n()) %>% 
+  arrange(-total) %>% 
+  head(5) %>% 
+  ggplot(aes(x = reorder (region, -total), y= total, fill = region, ))  + 
+  geom_bar(aes(y = total), stat = "identity",position = "dodge") +
+  geom_text(aes( x=region, y= total, label = total),vjust ="inward") + coord_flip()
 
 ```
-
-
-
-
 
 
 ```{r Q30 no wins}
-
 ### show the countries that did not win any medals at the olympics 
 ### 2016
-
-
-### visualise this using the ggplot2 bar chart
-
-
+athletereg %>% 
+  filter(Year==  2016, is.na(Medal))%>%
+  group_by(region) %>% 
+  summarise(total = n())
 ```
-
+```{r}
+### visualise this using the ggplot2 bar chart
+athletereg %>% 
+  filter(Year==  2016, is.na(Medal))%>%
+  group_by(region) %>% 
+  summarise(total = n()) %>%
+  arrange(desc(total)) %>% 
+  head(20) %>% 
+ ggplot(aes(x = reorder (region, -total), y= total, fill = region, ))  + 
+  geom_bar(aes(y = total), stat = "identity",position = "dodge") + labs(x = "region", y = "total", title = "countries without medals") +
+  geom_text(aes( x=region, y= total, label = total),vjust ="inward") + coord_flip()
+```
